@@ -35,7 +35,6 @@ export default function (url, callback) {
         release_date: date,
         word_count: wordCount,
       };
-
       return callback(null, obj);
     }
     return callback('no body', null);
