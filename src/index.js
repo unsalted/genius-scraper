@@ -1,13 +1,17 @@
 /**
  * @param {String} 'GENIUS_ACCESS_TOKEN'
  * @return {Type}
- */
-const nodeGenius = import from 'node-genius'
+ **/
+import nodeGenius from 'node-genius';
+import scrape from './scrape';
+import get from './get';
 
-export default function (key) {
+export default function GeniusScraper(key, blacklist) {
   const client = new nodeGenius(key);
   return {
+    blacklist: blacklist,
     client: client,
-    pull: pull,
-  }
+    scrape: scrape,
+    get: get,
+  };
 }
