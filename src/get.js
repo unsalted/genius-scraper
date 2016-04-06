@@ -10,7 +10,14 @@ export default function (auth, callback) {
     function findAuthor(hit) {
       return hit.result.primary_artist.name.toLowerCase() === author.toLowerCase();
     }
-    return obj.response.hits.find(findAuthor).result.primary_artist.id;
+    const f = obj.response.hits.find(findAuthor);
+    if(!f){
+      return false;
+    }
+    return {
+      id: f.result.primary_artist.id,
+      author: f.result.primary_artist.name,
+    };
   };
 
   const _getID = function (author, cb) {
@@ -68,18 +75,19 @@ export default function (auth, callback) {
 
   const execute = function (author, cb) {
     let gID = 0;
+    let gAuth = author;
     async.waterfall([
       async.apply(_getID, author),
-      (id, c) => { gID = id; c(null, id); },
+      (o, c) => { gID = o.id; gAuth = o.author; c(null, o.id); },
       _getSongs,
     ], (error, result) => {
       if (error) {
         return cb(error, null);
       }
       const obj = {
-        author: author,
+        author: gAuth,
         id: gID,
-        links: result,
+        urls: result,
       };
       return cb(null, obj);
     });

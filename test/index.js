@@ -6,10 +6,12 @@ import blacklist from '../config/blacklist';
 
 const key = process.env.GENIUS_ACCESS_TOKEN;
 
-const link = 'http://genius.com/Sia-chandelier-lyrics';
+const url = 'http://genius.com/Sia-chandelier-lyrics';
 const badLink = 'http://genius.com/sdlfkjsdf';
 const easyAuthor = 'Sia';
 const hardAuthor = 'Frank Sinatra';
+const easyAuthorID = 'Sia';
+const hardAuthorID = 'Frank Sinatra';
 
 const sia = {
   title: 'Chandelier',
@@ -18,25 +20,27 @@ const sia = {
   album: '1000 Forms of Fear',
   release_date: 'March 17, 2014',
   word_count: 416,
+  source_id: easyAuthorID,
+  source_url: url,
 };
 
 test('geniusScraper', (t) => {
   const GS = geniusScraper(key, blacklist);
   t.plan(6);
-  GS.scrape(link, (error, response) => {
-    t.deepEqual(response, sia, `${link} returns match for Chandelier`);
-    t.equal(null, error, `${link} returns null for errors`);
+  GS.scrape({ url: url, id: easyAuthorID, author: easyAuthor }, (error, response) => {
+    t.deepEqual(response, sia, `${url} returns match for Chandelier`);
+    t.equal(null, error, `${url} returns null for errors`);
   });
-  GS.scrape(badLink, (error) => {
+  GS.scrape({ url: badLink, id: easyAuthorID, author: easyAuthor }, (error) => {
     t.deepEqual({ code: 404, message: '404 Not Found' }, error, `${badLink} returns 404 error`);
   });
   GS.get(easyAuthor, (error, response) => {
-    const qt = response.links.some((s) => s === 'http://genius.com/Sia-chandelier-lyrics');
+    const qt = response.urls.some((s) => s === 'http://genius.com/Sia-chandelier-lyrics');
     t.equal(true, qt, 'Found songs by Sia');
     t.equal(16775, response.id, 'Sia id match');
   });
   GS.get(hardAuthor, (error, response) => {
-    const qt = response.links.some((s) => s === 'http://genius.com/Frank-sinatra-always-lyrics');
+    const qt = response.urls.some((s) => s === 'http://genius.com/Frank-sinatra-always-lyrics');
     t.equal(true, qt, 'Found songs by Frank Sinatra');
   });
 });
