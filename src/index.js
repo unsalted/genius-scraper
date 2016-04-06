@@ -5,6 +5,7 @@
 import nodeGenius from 'node-genius';
 import scrape from './scrape';
 import get from './get';
+import getByID from './getByID';
 
 module.exports = function(key, blacklist) {
   const client = new nodeGenius(key);
@@ -13,5 +14,6 @@ module.exports = function(key, blacklist) {
     client: client,
     scrape: scrape,
     get: get,
+    getByID: getByID,
   };
 }

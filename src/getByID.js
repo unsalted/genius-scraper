@@ -1,37 +1,9 @@
 import _ from 'lodash';
 import async from 'async';
 
-export default function (auth, callback) {
+export default function (request, callback) {
   const self = this;
   const client = self.client;
-
-  const _parseAuthorId = function (author, o) {
-    const obj = JSON.parse(o);
-    function findAuthor(hit) {
-      return hit.result.primary_artist.name.toLowerCase() === author.toLowerCase();
-    }
-    const f = obj.response.hits.find(findAuthor);
-    if(!f){
-      return false;
-    }
-    return {
-      id: f.result.primary_artist.id,
-      author: f.result.primary_artist.name,
-    };
-  };
-
-  const _getID = function (author, cb) {
-    if (author) {
-      client.search(author, (error, searchResults) => {
-        if (error) { return cb(error, null); }
-        const id = _parseAuthorId(author, searchResults);
-        if (!id) {
-          return cb(`Could not find author: ${author}`, null);
-        }
-        return cb(null, id);
-      });
-    }
-  };
 
   const blacklistCheck = function (i, bl) {
     const item = i.toLowerCase();
@@ -44,7 +16,6 @@ export default function (auth, callback) {
     const per = 50;
     let songs = ['0'];
     let count = 0;
-
     async.whilst(
       () => {return songs.length > 0;},
       (result) => {
@@ -72,24 +43,18 @@ export default function (auth, callback) {
     );
   };
 
-  const execute = function (author, cb) {
-    let gID = 0;
-    let gAuth = author;
-    async.waterfall([
-      async.apply(_getID, author),
-      (o, c) => { gID = o.id; gAuth = o.author; c(null, o.id); },
-      _getSongs,
-    ], (error, result) => {
+  const execute = function (_obj, cb) {
+    _getSongs(_obj.id, (error, result) => {
       if (error) {
         return cb(error, null);
       }
       const obj = {
-        author: gAuth,
-        id: gID,
+        author: _obj.author,
+        id: _obj.id,
         urls: result,
       };
       return cb(null, obj);
-    });
+    })  
   };
-  execute(auth, callback);
+  execute(request, callback);
 }

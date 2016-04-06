@@ -10,7 +10,7 @@ const url = 'http://genius.com/Sia-chandelier-lyrics';
 const badLink = 'http://genius.com/sdlfkjsdf';
 const easyAuthor = 'Sia';
 const hardAuthor = 'Frank Sinatra';
-const easyAuthorID = 'Sia';
+const easyAuthorID = 16775;
 const hardAuthorID = 'Frank Sinatra';
 
 const sia = {
@@ -26,7 +26,7 @@ const sia = {
 
 test('geniusScraper', (t) => {
   const GS = geniusScraper(key, blacklist);
-  t.plan(6);
+  t.plan(7);
   GS.scrape({ url: url, id: easyAuthorID, author: easyAuthor }, (error, response) => {
     t.deepEqual(response, sia, `${url} returns match for Chandelier`);
     t.equal(null, error, `${url} returns null for errors`);
@@ -42,5 +42,9 @@ test('geniusScraper', (t) => {
   GS.get(hardAuthor, (error, response) => {
     const qt = response.urls.some((s) => s === 'http://genius.com/Frank-sinatra-always-lyrics');
     t.equal(true, qt, 'Found songs by Frank Sinatra');
+  });
+  GS.getByID({ id: easyAuthorID, author: easyAuthor }, (error, response) => {
+    const qt = response.urls.some((s) => s === 'http://genius.com/Sia-chandelier-lyrics');
+    t.equal(true, qt, 'Found songs by ID for Sia');
   });
 });
